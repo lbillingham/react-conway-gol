@@ -1,13 +1,54 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, {useState} from 'react';
+import { produce } from 'immer';
 
-function App() {
+const numRows = 25;
+const numCols = 25;
+const cellSize = 20;
+const borderStyle =  "solid 1px black";
+const aliveColor = 'pink';
+const deadColor = undefined;
+
+const filledGrid = (fillVal?: boolean) => {
+  const filling = fillVal ? fillVal : false;
+    const rows = [];
+    for (let i = 0; i < numRows; i++) {
+      rows.push(Array.from(Array(numCols), () => filling ));
+    }
+    return rows;
+}
+
+const App: React.FC = () => {
+  const [grid, setGrid] = useState(() => {
+    return filledGrid();
+  });
   return (
-    <div className="App">
-      Conway's Game of Life
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${numCols}, ${cellSize}px)`
+        }}
+      >
+        {grid.map((rows, i) =>
+          rows.map((col, k) => (
+            <div
+              key={`${i}-${k}`}
+              onClick={() => {
+                const newGrid = produce(grid, gridCopy => {
+                  gridCopy[i][k] = ! grid[i][k]
+                });
+                setGrid(newGrid);
+              }}
+              style={{
+                width: cellSize,
+                height: cellSize,
+                backgroundColor: grid[i][k] ? aliveColor: deadColor,
+                border: borderStyle
+              }}
+            />
+      ))
+    )}
     </div>
   );
-}
+        };
 
 export default App;
